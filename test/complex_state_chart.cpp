@@ -70,6 +70,7 @@ struct Off : StateBase {
 };
 struct OffInternal : StateBase {
   using ParentState = Off;
+  MOCK_METHOD(void, handle, (const Tick &));
 };
 struct On : StateBase {
   using StartState = Init;
@@ -150,6 +151,14 @@ TEST_F(ComplexSC, CallEntryMethodWhenStartedWithEntry) {
   EXPECT_CALL(off_internal, enter());
 
   instance.start(true);
+}
+
+TEST_F(ComplexSC, VoidReturnFromHandle) {
+  instance.start();
+
+  EXPECT_CALL(off_internal, handle(::testing::An<const Tick &>()));
+
+  instance.handle(Tick{});
 }
 
 TEST_F(ComplexSC, HandleEventOnParentState) {

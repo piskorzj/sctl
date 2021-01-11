@@ -150,8 +150,18 @@ private:
       st.handle(ev);
     };
 
+    constexpr bool can_return = requires(S & st, const E &ev) {
+      { convert_to_variant(st.handle(ev)) }
+      ->std::convertible_to<StateActionVariant>;
+    };
+
     if constexpr (can_handle) {
-      return convert_to_variant(std::get<S &>(_states).handle(e));
+      if constexpr (can_return) {
+        return convert_to_variant(std::get<S &>(_states).handle(e));
+      } else {
+        std::get<S &>(_states).handle(e);
+        return KeepState{};
+      }
     } else if constexpr (details::Substate<S>) {
       return call_handle_on_chain<typename S::ParentState>(e);
     } else {

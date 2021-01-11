@@ -17,7 +17,7 @@ Possible return types are:
 * `void` - no transition
 * `sctl::KeepState` - no transition
 * `sctl::State<T>` - transition to T state
-* `StateChart::StateActionVariant` - transition to state selected in variant (`KeepState` is also part of the variant)
+* `std::variant<sctl::State<Ts>..., sctl::KeepState>` - transition to state selected in variant (any combination of `sctl::State<T>` is valid, also `stcl::KeepState`), usable for runtime decision
 
 Methods of State class relevant to state chart (`RET` is one of above types):
 

@@ -13,6 +13,8 @@ template <typename S> struct State {
 struct NoAction {};
 struct KeepState : State<NoAction> {};
 
+namespace details {
+
 template <typename state> concept Substate = requires {
   typename state::ParentState;
 };
@@ -20,13 +22,11 @@ template <typename state> concept HasStartState = requires {
   typename state::StartState;
 };
 
+} // namespace details
+
 template <typename... States> class StateChart {
 public:
-  std::tuple<States &...> _states;
-
   using StateActionVariant = std::variant<KeepState, State<States>...>;
-
-  StateActionVariant _current{KeepState{}};
 
   StateChart(States &...states) : _states{states...} {}
 
@@ -59,6 +59,10 @@ public:
 
     _current = transition(_current, transition_to);
   }
+
+private:
+  std::tuple<States &...> _states;
+  StateActionVariant _current{KeepState{}};
 
   StateActionVariant transition(const StateActionVariant &from_state,
                                 const StateActionVariant &to_state) {
@@ -148,7 +152,7 @@ public:
 
     if constexpr (can_handle) {
       return std::get<S &>(_states).handle(e);
-    } else if constexpr (Substate<S>) {
+    } else if constexpr (details::Substate<S>) {
       return call_handle_on_chain<typename S::ParentState>(e);
     } else {
       return KeepState{};
@@ -172,12 +176,12 @@ public:
   }
 
   template <typename state> struct resolve_start_state { using type = state; };
-  template <HasStartState state>
+  template <details::HasStartState state>
   struct resolve_start_state<state>
       : resolve_start_state<typename state::StartState> {};
 
   template <typename... state> struct parent_chain;
-  template <Substate curr, typename... tail>
+  template <details::Substate curr, typename... tail>
   struct parent_chain<curr, tail...>
       : parent_chain<typename curr::ParentState, curr, tail...> {};
   template <typename curr, typename... tail>

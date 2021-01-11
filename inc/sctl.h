@@ -29,8 +29,6 @@ concept IsStateWrapper = std::is_same<State<typename T::type>, T>::value;
 
 template <typename... States> class StateChart {
 public:
-  using StateActionVariant = std::variant<KeepState, State<States>...>;
-
   StateChart(States &...states) : _states{states...} {}
 
   void start(bool call_entry = false) {
@@ -64,6 +62,8 @@ public:
   }
 
 private:
+  using StateActionVariant = std::variant<KeepState, State<States>...>;
+
   std::tuple<States &...> _states;
   StateActionVariant _current{KeepState{}};
 

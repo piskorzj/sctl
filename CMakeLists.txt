@@ -13,5 +13,6 @@ include(GoogleTest)
 
 add_executable(sctl_test test/simple_fsm.cpp test/complex_state_chart.cpp)
 target_link_libraries(sctl_test sctl gmock gtest_main)
+target_compile_options(sctl_test PRIVATE -Wall -Wextra -pedantic -Werror)
 
 gtest_discover_tests(sctl_test)

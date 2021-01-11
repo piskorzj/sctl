@@ -26,7 +26,7 @@ struct StateOff {
   MOCK_METHOD(void, enter, ());
   MOCK_METHOD(void, exit, ());
 
-  auto handle(const ActionTurnOn &a) { return sctl::State<StateOn>{}; }
+  auto handle(const ActionTurnOn &) { return sctl::State<StateOn>{}; }
 };
 
 struct SimpleFSM : public ::testing::Test {

@@ -109,7 +109,9 @@ struct Processing : StateBase {
 };
 struct Waiting : StateBase {
   using ParentState = Config;
-  auto handle(const Timeout &) { return sctl::State<Ready>{}; }
+  std::variant<sctl::State<Ready>, sctl::KeepState> handle(const Timeout &) {
+    return sctl::State<Ready>{};
+  }
 };
 
 struct ComplexSC : public ::testing::Test {

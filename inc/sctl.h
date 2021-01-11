@@ -151,7 +151,7 @@ private:
     };
 
     if constexpr (can_handle) {
-      return std::get<S &>(_states).handle(e);
+      return convert_to_variant(std::get<S &>(_states).handle(e));
     } else if constexpr (details::Substate<S>) {
       return call_handle_on_chain<typename S::ParentState>(e);
     } else {
@@ -173,6 +173,17 @@ private:
     if constexpr (can_enter) {
       return std::get<S &>(_states).enter();
     }
+  }
+
+  template <typename... StatesSubset>
+  constexpr StateActionVariant
+  convert_to_variant(std::variant<StatesSubset...> v) {
+    return std::visit([](auto &&arg) -> StateActionVariant { return arg; }, v);
+  }
+
+  template <typename S>
+  constexpr StateActionVariant convert_to_variant(State<S> state) {
+    return state;
   }
 
   template <typename state> struct resolve_start_state { using type = state; };

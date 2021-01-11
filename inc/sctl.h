@@ -22,6 +22,9 @@ template <typename state> concept HasStartState = requires {
   typename state::StartState;
 };
 
+template <typename T>
+concept IsStateWrapper = std::is_same<State<typename T::type>, T>::value;
+
 } // namespace details
 
 template <typename... States> class StateChart {
@@ -119,18 +122,21 @@ private:
   std::pair<StateActionVariant, StateActionVariant>
   call_enter_on_chain_exit_when_return(S &&s, Rest &&...rest) {
     if constexpr (requires {
-                    { call_enter(std::forward<S>(s)) }
+                    { convert_to_variant(call_enter(std::forward<S>(s))) }
                     ->std::convertible_to<StateActionVariant>;
                   }) {
       const auto new_state = call_enter(std::forward<S>(s));
       using NewStateType = std::decay<decltype(new_state)>::type;
 
-      if constexpr (std::is_same<NewStateType, StateActionVariant>::value) {
-        if (!std::get_if<KeepState>(&new_state)) {
+      if constexpr (details::IsStateWrapper<NewStateType>) {
+        if constexpr (!std::is_same<NewStateType, KeepState>::value) {
           return {s, new_state};
         }
-      } else if constexpr (!std::is_same<NewStateType, KeepState>::value) {
-        return {s, new_state};
+      } else {
+        const auto new_state_variant = convert_to_variant(new_state);
+        if (!std::get_if<KeepState>(&new_state_variant)) {
+          return {s, new_state_variant};
+        }
       }
     } else {
       call_enter(std::forward<S>(s));

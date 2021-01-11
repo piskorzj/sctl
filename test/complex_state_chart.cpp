@@ -103,7 +103,7 @@ struct Config : StateBase {
 };
 struct Processing : StateBase {
   using ParentState = Config;
-  auto enter() {
+  std::variant<sctl::State<Waiting>, sctl::KeepState> enter() {
     StateBase::enter();
     return sctl::State<Waiting>{};
   }

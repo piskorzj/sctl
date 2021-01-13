@@ -16,3 +16,8 @@ target_link_libraries(sctl_test sctl gmock gtest_main)
 target_compile_options(sctl_test PRIVATE -Wall -Wextra -pedantic -Werror)
 
 gtest_discover_tests(sctl_test)
+
+
+add_executable(sctl_test_complex_state_chart_printer test/complex_state_chart_printer.cpp)
+target_link_libraries(sctl_test_complex_state_chart_printer sctl gmock)
+target_compile_options(sctl_test_complex_state_chart_printer PRIVATE -Wall -Wextra -pedantic -Werror)

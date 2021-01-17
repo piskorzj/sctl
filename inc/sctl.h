@@ -22,6 +22,14 @@ template <typename state> concept HasStartState = requires {
   typename state::StartState;
 };
 
+template <typename state> concept HasEntryAction = requires {
+  state{}.enter();
+};
+
+template <typename state, typename action> concept HasHandler = requires {
+  state{}.handle(action{});
+};
+
 template <typename T>
 concept IsStateWrapper = std::is_same<State<typename T::type>, T>::value;
 
